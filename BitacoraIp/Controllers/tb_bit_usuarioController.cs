@@ -127,7 +127,8 @@ namespace BitacoraIp.Controllers
         public ActionResult DeleteConfirmed(int id)
         {
             tb_bit_usuario tb_bit_usuario = db.tb_bit_usuario.Find(id);
-            db.tb_bit_usuario.Remove(tb_bit_usuario);
+            tb_bit_usuario.fec_baja = DateTime.Now;
+            db.Entry(tb_bit_usuario).State = EntityState.Modified;
             db.SaveChanges();
             return RedirectToAction("Index");
         }
