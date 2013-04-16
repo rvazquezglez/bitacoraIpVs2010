@@ -6,6 +6,7 @@ using System.Linq;
 using System.Web;
 using System.Web.Mvc;
 using BitacoraIp.Models;
+using System.Transactions;
 
 namespace BitacoraIp.Controllers
 {
@@ -18,7 +19,13 @@ namespace BitacoraIp.Controllers
 
         public ActionResult Index()
         {
-            var tb_bit_usuario = db.tb_bit_usuario.Include(t => t.tb_bit_cat_area).Include(t => t.tb_bit_cat_dga).Include(t => t.tb_bit_cat_empresa).Include(t => t.tb_bit_cat_piso).Include(t => t.tb_bit_cat_regional);
+            var tb_bit_usuario = db.tb_bit_usuario
+                .Include(t => t.tb_bit_cat_area)
+                .Include(t => t.tb_bit_cat_dga)
+                .Include(t => t.tb_bit_cat_empresa)
+                .Include(t => t.tb_bit_cat_piso)
+                .Include(t => t.tb_bit_cat_regional)
+                .Where(x => x.fec_baja == null);
             return View(tb_bit_usuario.ToList());
         }
 
@@ -56,6 +63,7 @@ namespace BitacoraIp.Controllers
         {
             if (ModelState.IsValid)
             {
+                tb_bit_usuario.fec_alta = DateTime.Now;
                 db.tb_bit_usuario.Add(tb_bit_usuario);
                 db.SaveChanges();
                 return RedirectToAction("Index");
@@ -75,6 +83,7 @@ namespace BitacoraIp.Controllers
         public ActionResult Edit(int id = 0)
         {
             tb_bit_usuario tb_bit_usuario = db.tb_bit_usuario.Find(id);
+            this.ControllerContext.HttpContext.Session["usuario_hist"] = tb_bit_usuario;
             if (tb_bit_usuario == null)
             {
                 return HttpNotFound();
@@ -95,8 +104,14 @@ namespace BitacoraIp.Controllers
         {
             if (ModelState.IsValid)
             {
-                db.Entry(tb_bit_usuario).State = EntityState.Modified;
-                db.SaveChanges();
+                using (TransactionScope ts = new TransactionScope())
+                {
+                    var historico = CreateHistorico((tb_bit_usuario)this.ControllerContext.HttpContext.Session["usuario_hist"]);
+                    db.tb_bit_usuario_historico.Add(historico);
+                    db.Entry(tb_bit_usuario).State = EntityState.Modified;
+                    db.SaveChanges();
+                    ts.Complete();
+                }
                 return RedirectToAction("Index");
             }
             ViewBag.fk_cve_area = new SelectList(db.tb_bit_cat_area, "pk_cve_area", "des_area", tb_bit_usuario.fk_cve_area);
@@ -105,6 +120,27 @@ namespace BitacoraIp.Controllers
             ViewBag.fk_cve_piso = new SelectList(db.tb_bit_cat_piso, "pk_cve_piso", "des_piso", tb_bit_usuario.fk_cve_piso);
             ViewBag.fk_cve_regional = new SelectList(db.tb_bit_cat_regional, "pk_cve_regional", "des_regional", tb_bit_usuario.fk_cve_regional);
             return View(tb_bit_usuario);
+        }
+
+        private tb_bit_usuario_historico CreateHistorico(tb_bit_usuario tb_bit_usuario)
+        {
+            return new tb_bit_usuario_historico
+            {
+                ape_materno = tb_bit_usuario.ape_materno,
+                ape_paterno = tb_bit_usuario.ape_paterno,
+                cve_usuario = tb_bit_usuario.pk_cve_usuario,
+                des_observacion = tb_bit_usuario.des_observacion,
+                fk_cve_area = tb_bit_usuario.fk_cve_area,
+                fk_cve_dga = tb_bit_usuario.fk_cve_dga,
+                fk_cve_empresa = tb_bit_usuario.fk_cve_empresa,
+                fk_cve_piso = tb_bit_usuario.fk_cve_piso,
+                fk_cve_regional = tb_bit_usuario.fk_cve_regional,
+                nom_user_name = tb_bit_usuario.nom_user_name,
+                nom_usuario = tb_bit_usuario.nom_usuario,
+                fecha_cambio = DateTime.Now
+
+            };
+
         }
 
         //
@@ -127,8 +163,19 @@ namespace BitacoraIp.Controllers
         public ActionResult DeleteConfirmed(int id)
         {
             tb_bit_usuario tb_bit_usuario = db.tb_bit_usuario.Find(id);
-            tb_bit_usuario.fec_baja = DateTime.Now;
-            db.Entry(tb_bit_usuario).State = EntityState.Modified;
+            using (TransactionScope ts = new TransactionScope())
+            {
+                db.tb_bit_usuario_historico.Add(CreateHistorico(tb_bit_usuario));
+
+                /*tb_bit_usuario.tb_bit_ip.ToList().ForEach(r => db.tb_bit_ip.Remove(r));*/
+
+                tb_bit_usuario.fec_baja = DateTime.Now;
+
+                db.SaveChanges();
+
+
+                ts.Complete();
+            }
             db.SaveChanges();
             return RedirectToAction("Index");
         }
