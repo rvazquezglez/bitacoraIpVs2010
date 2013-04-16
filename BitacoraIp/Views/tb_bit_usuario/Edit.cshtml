@@ -1,4 +1,4 @@
-﻿@model BitacoraIp.Models.tb_bit_usuario
+﻿@model BitacoraDireccionesIp.Models.tb_bit_usuario
 
 @{
     ViewBag.Title = "Edit";
@@ -11,14 +11,9 @@
 
     <fieldset>
         <legend>tb_bit_usuario</legend>
-
-        <div class="editor-label">
-            @Html.LabelFor(model => model.pk_cve_usuario)
-        </div>
-        <div class="editor-field">
-            @Html.EditorFor(model => model.pk_cve_usuario)
-            @Html.ValidationMessageFor(model => model.pk_cve_usuario)
-        </div>
+        @Html.HiddenFor(model => model.pk_cve_usuario)
+        
+        
 
         <div class="editor-label">
             @Html.LabelFor(model => model.nom_user_name)
@@ -96,33 +91,10 @@
             @Html.LabelFor(model => model.des_observacion)
         </div>
         <div class="editor-field">
-            @Html.EditorFor(model => model.des_observacion)
+            @Html.EditorFor(model => model.des_observacion)            
             @Html.ValidationMessageFor(model => model.des_observacion)
         </div>
-
-        <div class="editor-label">
-            @Html.LabelFor(model => model.fec_alta)
-        </div>
-        <div class="editor-field">
-            @Html.EditorFor(model => model.fec_alta)
-            @Html.ValidationMessageFor(model => model.fec_alta)
-        </div>
-
-        <div class="editor-label">
-            @Html.LabelFor(model => model.fec_baja)
-        </div>
-        <div class="editor-field">
-            @Html.EditorFor(model => model.fec_baja)
-            @Html.ValidationMessageFor(model => model.fec_baja)
-        </div>
-
-        <div class="editor-label">
-            @Html.LabelFor(model => model.fec_actualiza)
-        </div>
-        <div class="editor-field">
-            @Html.EditorFor(model => model.fec_actualiza)
-            @Html.ValidationMessageFor(model => model.fec_actualiza)
-        </div>
+        
 
         <p>
             <input type="submit" value="Save" />
@@ -133,6 +105,15 @@
 <div>
     @Html.ActionLink("Back to List", "Index")
 </div>
+<script type="text/javascript">
+        $(function() {
+            $('.datepicker').datepicker(); //Initialise any date pickers
+            $('input[type="datetime"]').datepicker();
+            //$('#fec_alta').datepicker();
+            
+            $('.datepicker').css("z-index", "9999");
+        });
+    </script>
 
 @section Scripts {
     @Scripts.Render("~/bundles/jqueryval")

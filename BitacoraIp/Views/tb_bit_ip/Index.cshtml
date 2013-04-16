@@ -1,4 +1,4 @@
-﻿@model IEnumerable<BitacoraIp.Models.tb_bit_ip>
+﻿@model IEnumerable<BitacoraDireccionesIp.Models.tb_bit_ip>
 
 @{
     ViewBag.Title = "Index";
@@ -7,9 +7,10 @@
 <h2>Index</h2>
 
 <p>
-    @Html.ActionLink("Create New", "Create")
+    @Html.ActionLink("Create New", "Create")    
+    <a href="@Url.Action("CreateByUser", "tb_bit_ip", new { cveusuario = ViewBag.cveusuario })"  class="detalleUsuario">Crear registro de dirección IP</a>
 </p>
-<table>
+<table class="table table-striped">
     <tr>
         <th>
             @Html.DisplayNameFor(model => model.pk_cve_ip)
@@ -101,9 +102,10 @@
             @Html.DisplayFor(modelItem => item.tb_bit_cat_equipo_telefono_modelo.des_equipo_telefono_modelo)
         </td>
         <td>
-            @Html.ActionLink("Edit", "Edit", new { /* id=item.PrimaryKey */ }) |
-            @Html.ActionLink("Details", "Details", new { /* id=item.PrimaryKey */ }) |
-            @Html.ActionLink("Delete", "Delete", new { /* id=item.PrimaryKey */ })
+            @Html.ActionLink("Edit", "Edit", new { id= item.pk_cve_ip.Replace(".","-"), conmutador = item.pfk_cve_switch, usuario = item.pfk_cve_usuario}) |            
+
+            @Html.ActionLink("Details", "Details", new { id= item.pk_cve_ip.Replace(".","-"), conmutador = item.pfk_cve_switch, usuario = item.pfk_cve_usuario}) |
+            @Html.ActionLink("Delete", "Delete", new { id= item.pk_cve_ip.Replace(".","-"), conmutador = item.pfk_cve_switch, usuario = item.pfk_cve_usuario})
         </td>
     </tr>
 }
