@@ -108,6 +108,9 @@ namespace BitacoraIp.Controllers
                 {
                     var historico = CreateHistorico((tb_bit_usuario)this.ControllerContext.HttpContext.Session["usuario_hist"]);
                     db.tb_bit_usuario_historico.Add(historico);
+                    tb_bit_usuario.fec_actualiza = DateTime.Now;
+                    tb_bit_usuario.fec_alta = historico.fec_alta;
+                    tb_bit_usuario.fec_baja = historico.fec_baja;
                     db.Entry(tb_bit_usuario).State = EntityState.Modified;
                     db.SaveChanges();
                     ts.Complete();
@@ -137,6 +140,7 @@ namespace BitacoraIp.Controllers
                 fk_cve_regional = tb_bit_usuario.fk_cve_regional,
                 nom_user_name = tb_bit_usuario.nom_user_name,
                 nom_usuario = tb_bit_usuario.nom_usuario,
+                fec_alta = tb_bit_usuario.fec_alta,
                 fecha_cambio = DateTime.Now
 
             };
